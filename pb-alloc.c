@@ -1,5 +1,7 @@
 // ==============================================================================
 /**
+// ==============================================================================
+/**
  * pb-alloc.c
  *
  * A _pointer-bumping_ heap allocator.  This allocator *does not re-use* freed
@@ -44,6 +46,7 @@
 #define HEAP_SIZE GB(2)
 // ==============================================================================
 
+size_t roundUp(size_t size);
 
 // ==============================================================================
 // TYPES AND STRUCTURES
@@ -89,12 +92,7 @@ void init () {
     // Allocate virtual address space in which the heap will reside. Make it
     // un-shared and not backed by any file (_anonymous_ space).  A failure to
     // map this space is fatal.
-    void* heap = mmap(NULL,
-		      HEAP_SIZE,
-		      PROT_READ | PROT_WRITE,
-		      MAP_PRIVATE | MAP_ANONYMOUS,
-		      -1,
-		      0);
+    void* heap = mmap(NULL,  HEAP_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,-1, 0);
     if (heap == MAP_FAILED) {
       ERROR("Could not mmap() heap region");
     }
@@ -123,31 +121,43 @@ void init () {
  * \return A pointer to the allocated block, if successful; `NULL` if
  *         unsuccessful.
  */
+ 
+ size_t roundUp(size_t size){
+ 	size_t newSize = size + 16;
+ 	size_t mod = newSize % 16;
+ 	newSize = newSize - mod;
+ 	return newSize;
+ }
+ 
 void* malloc (size_t size) {
 
-  init();
+  init();			// init() does something if there's no heap region allocated yet
 
   if (size == 0) {
-    return NULL;
+    return NULL;	// If you ask me for a box but you're not going to keep anything in it, then I'm not giving you anything
   }
+  size = roundUp (size);
+  size_t padding = 16 - (sizeof(header_s ));
 
-  size_t    total_size = size + sizeof(header_s);
-  header_s* header_ptr = (header_s*)free_addr;
-  void*     block_ptr  = (void*)(free_addr + sizeof(header_s));
+  size_t    total_size = size + sizeof(header_s) + padding;	//calculate the total size of the block: the size requested (where useful stuff's gonna go) plus the size of the header
+  header_s* header_ptr = (header_s*)free_addr;		//create a new header (technically point to a space that will contain a header) at the next available byte in the heap
+  void*     block_ptr  = (void*)(free_addr + sizeof(header_s) + padding);	//point to the next byte after the header **MODIFIED
 
-  intptr_t new_free_addr = free_addr + total_size;
+  intptr_t new_free_addr = free_addr + total_size;		// create a local variable that stores the new start of the free space (also technically, the end of the block we just created). (Bump the pointer)
   if (new_free_addr > end_addr) {
 
-    return NULL;
+    return NULL;/* not likely to happen in real life, but this is in the case we have filled up the whole heap ( = if a new block would overflow)
+	then you want to end malloc() and return NULL. No memory will be allocated, and the actual program running this will crash*/
 
   } else {
 
-    free_addr = new_free_addr;
+    free_addr = new_free_addr; //update the global pointer that's tracking the start of the free space
 
   }
 
-  header_ptr->size = size;
-  return block_ptr;
+  header_ptr->size = size; // Assign the 'size' property of the header of our block to be the size requested. of course
+  return block_ptr; 
+  // Overall a pretty inflexible method that returns a block that fits exactly the size requested.
 
 } // malloc()
 // ==============================================================================
@@ -213,27 +223,31 @@ void* calloc (size_t nmemb, size_t size) {
 void* realloc (void* ptr, size_t size) {
 
   if (ptr == NULL) {
-    return malloc(size);
+    return malloc(size); // if you ask me to reallocate a null block, i'll just give you a new one with an exact size fit
   }
 
-  if (size == 0) {
+  if (size == 0) { //if you ask me to change the size of a block to zero, then that's just freeing it. Doesn't make sense to return a pointer to that block
+  // though I suppose free() would then modify the free_addr so you keep a pointer to the beginning of free space.
     free(ptr);
     return NULL;
   }
 
-  header_s* old_header = (header_s*)((intptr_t)ptr - sizeof(header_s));
+  header_s* old_header = (header_s*)((intptr_t)ptr - sizeof(header_s)); 
   size_t    old_size   = old_header->size;
-
-  if (size <= old_size) {
+  //get a pointer to the old header and its size.
+  
+  if (size <= old_size) { //if you want to exchnge a big box for a small box, i'll just let you keep the big box
     return ptr;
   }
 
-  void* new_ptr = malloc(size);
+
+  void* new_ptr = malloc(size);// otherwise if you want a bigger box; I'll make you a box that's exactly the size you want
+  
   if (new_ptr != NULL) {
-    memcpy(new_ptr, ptr, old_size);
-    free(ptr);
+    memcpy(new_ptr, ptr, old_size);// Assuming nothing went wrong, I'll copy your stuff from the small box to the bigger box
+    free(ptr);// then I'll clean the small box
   }
-  return new_ptr;
+  return new_ptr;// You get to keep the bigger box, because I'm kind :)
   
 } // realloc()
 // ==============================================================================
