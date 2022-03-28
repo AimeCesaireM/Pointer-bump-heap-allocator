@@ -30,21 +30,13 @@ int main (int argc, char **argv){
    is to see whether they end with 0. If that's the case, then they are divisible.*/
    
    char array[] = "Helloooo, we are testing memory allocation functions. Courtesy of The Amherst College Computer Systems class";
-   char* string = array;
-   char* copy = realloc(string, 30);   //try putting it in a smaller box, should still keep bigger box
-   printf("Address of String = %p\n", copy);
-   printf("String: = %s", copy);
-   copy = realloc(string, 300); //get bigger box
-   printf("Address of String  = %p\n", copy);
- printf("String: = %s", copy);
-   
-   
-   
-   char* sPtr = malloc (20);
-
-   
-   
-   
+   char* string = array[0];
+   char* copy = NULL;   //try putting it in a smaller box, should still keep bigger box
+   printf("Address of String = %p\n", &array);
+   printf("String: = %s\n", array);
+   copy = realloc(string, 150); //get bigger box
+   printf("Address of Copy  = %p\n", copy);
+ printf("Copy: = %s", copy);   
    
   
 
