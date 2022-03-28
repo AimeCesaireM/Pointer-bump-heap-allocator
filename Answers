@@ -1,0 +1,3 @@
+1. Realloc() seems to work well. It allocates new blocks only when it should
+2. However, there seems to be issues that pop up with copying blocks that have elements.
+3. The blocks are double-word aligned 
