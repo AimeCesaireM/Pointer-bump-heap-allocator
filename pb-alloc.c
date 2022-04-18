@@ -232,7 +232,7 @@ void* realloc (void* ptr, size_t size) {
     return NULL;
   }
 
-  header_s* old_header = (header_s*)((intptr_t)ptr - sizeof(header_s)); 
+  header_s* old_header = (header_s*)((intptr_t)ptr - sizeof(header_s) - (16 - (sizeof(header_s )))); 
   size_t    old_size   = old_header->size;
   //get a pointer to the old header and its size.
   

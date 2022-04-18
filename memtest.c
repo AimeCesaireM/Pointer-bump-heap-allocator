@@ -28,13 +28,18 @@ int main (int argc, char **argv){
   
   /* All these addresses have to be multiples of 16. An easy way to check
    is to see whether they end with 0. If that's the case, then they are divisible.*/
+  char* firstSpace = (char*)malloc (10);
    
-   char array[] = "Helloooo, we are testing memory allocation functions. Courtesy of The Amherst College Computer Systems class";
-   char* string = array[0];
-   char* copy = NULL;   //try putting it in a smaller box, should still keep bigger box
-   printf("Address of String = %p\n", &array);
-   printf("String: = %s\n", array);
-   copy = realloc(string, 150); //get bigger box
+   char array[] = "Hello";
+
+   for (int i = 0; i < 5; ++i){
+     firstSpace[i] = array [i];
+   }
+
+   char* copy = (char*)realloc(firstSpace, 18); 
+      //try putting it in a bigger box
+   printf("Address of first string = %p\n", firstSpace);
+   printf("String: = %s\n", firstSpace);
    printf("Address of Copy  = %p\n", copy);
  printf("Copy: = %s", copy);   
    
