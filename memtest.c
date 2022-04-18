@@ -28,20 +28,22 @@ int main (int argc, char **argv){
   
   /* All these addresses have to be multiples of 16. An easy way to check
    is to see whether they end with 0. If that's the case, then they are divisible.*/
-  char* firstSpace = (char*)malloc (10);
+  char* firstSpace = (char*)malloc (40);
    
-   char array[] = "Hello";
+   char array[] = "Hello, again. I am back";
 
-   for (int i = 0; i < 5; ++i){
+   for (int i = 0; i < 23; ++i){
      firstSpace[i] = array [i];
    }
-
-   char* copy = (char*)realloc(firstSpace, 18); 
-      //try putting it in a bigger box
+   // let'try boxes of a small and bigger size to see if the realloc() and memcpy() work
+   char* smallCopy = (char*)realloc(firstSpace, 23); 
+   char* bigCopy = (char*)realloc(firstSpace, 60);
    printf("Address of first string = %p\n", firstSpace);
    printf("String: = %s\n", firstSpace);
-   printf("Address of Copy  = %p\n", copy);
- printf("Copy: = %s", copy);   
+   printf("Address of Small Copy  = %p\n", smallCopy);
+   printf("Small Copy: = %s \n", smallCopy);
+   printf("Address of Big Copy = %p\n", bigCopy);
+   printf("Big Copy: = %s\n", bigCopy);
    
   
 
