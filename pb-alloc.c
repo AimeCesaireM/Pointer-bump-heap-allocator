@@ -137,11 +137,12 @@ void* malloc (size_t size) {
     return NULL;	// If you ask me for a box but you're not going to keep anything in it, then I'm not giving you anything
   }
   size = roundUp (size);
-  size_t padding = 16 - ((sizeof(header_s ))%16);
+  size_t paddingH = 16 - ((sizeof(header_s ))%16);
 
-  size_t    total_size = size + sizeof(header_s) + padding;	//calculate the total size of the block: the size requested (where useful stuff's gonna go) plus the size of the header
-  header_s* header_ptr = (header_s*)free_addr;		//create a new header (technically point to a space that will contain a header) at the next available byte in the heap
-  void*     block_ptr  = (void*)(free_addr + sizeof(header_s) + padding);	//point to the next byte after the header **MODIFIED
+  size_t    total_size = size + sizeof(header_s) + (16-(size+ sizeof(header_s))%16);	//calculate the total size of the block: the size requested (where useful stuff's gonna go) plus the size of the header
+  
+  void*     block_ptr  = (void*)(free_addr + sizeof(header_s) + paddingH);	//point to the next byte after the header **MODIFIED
+  header_s* header_ptr = (header_s*)(block_ptr - sizeof(header_s));;		//create a new header (technically point to a space that will contain a header) at the next available byte in the heap
 
   intptr_t new_free_addr = free_addr + total_size;		// create a local variable that stores the new start of the free space (also technically, the end of the block we just created). (Bump the pointer)
   if (new_free_addr > end_addr) {
@@ -232,7 +233,7 @@ void* realloc (void* ptr, size_t size) {
     return NULL;
   }
 
-  header_s* old_header = (header_s*)((intptr_t)ptr - sizeof(header_s) - (16 - (sizeof(header_s ))%16));// taking into account of the padding set in malloc() 
+  header_s* old_header = (header_s*)((intptr_t)ptr - sizeof(header_s ));// taking into account of the padding set in malloc() 
   size_t    old_size   = old_header->size;
   //get a pointer to the old header and its size.
   
