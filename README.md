@@ -30,7 +30,8 @@ This project demonstrates how a custom memory allocator can be implemented in C 
 ### Prerequisites
 
 - A C compiler (e.g., `gcc`)
-- Linux system (for `mmap` and `sysconf` usage)
+- Linux system (for `mmap` and `sysconf` usage). Use Windows Subsystem for Linux if on a Windows system
+- Download and extract the zip of this repo.
 
 ### Compilation
 
@@ -39,7 +40,10 @@ To build the allocator as a standalone program with the testing main function:
 ```bash
 gcc -DALLOC_MAIN -o pb_alloc pb-alloc.c
 ```
-
+To build the entire project, run the Makefile script.
+```bash
+make
+```
 ### Running Tests
 
 Run the compiled program:
